@@ -1,9 +1,9 @@
-name: Build aws-cli WASM plugin
+name: Release aws-cli WASM plugin
 
 on:
   push:
     tags:
-      - "aws-cli-v*"
+      - "v*"
 
 jobs:
   build:
