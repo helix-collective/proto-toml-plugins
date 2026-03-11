@@ -1,0 +1,27 @@
+name: Build aws-cli WASM plugin
+
+on:
+  push:
+    tags:
+      - "aws-cli-v*"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-wasip1
+
+      - name: Build plugin
+        working-directory: aws-cli
+        run: cargo build --target wasm32-wasip1 --release
+
+      - name: Upload WASM artifact to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: aws-cli/target/wasm32-wasip1/release/aws_cli_plugin.wasm
