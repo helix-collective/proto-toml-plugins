@@ -1,0 +1,20 @@
+[package]
+name = "aws_cli_plugin"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[lib]
+path = "src/proto.rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+extism-pdk = "1.4"
+proto_pdk = "0.32"
+serde = "1"
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+panic = "abort"
