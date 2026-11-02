@@ -10,7 +10,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 extism-pdk = "1.4"
-proto_pdk = "0.32"
+proto_pdk = "0.36"
 serde = "1"
 
 [profile.release]

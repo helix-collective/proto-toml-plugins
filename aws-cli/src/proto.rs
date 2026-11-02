@@ -22,7 +22,14 @@ pub fn load_versions(_: Json<LoadVersionsInput>) -> FnResult<Json<LoadVersionsOu
 
     let versions = tags
         .into_iter()
-        .filter(|tag| tag.starts_with('2'))
+        // Only plain 2.x.y releases; old pre-release tags such as `2.0.0dev0`
+        // aren't valid semver and fail the whole version list.
+        .filter(|tag| {
+            let parts: Vec<&str> = tag.split('.').collect();
+            parts.len() == 3
+                && parts[0] == "2"
+                && parts.iter().all(|p| !p.is_empty() && p.chars().all(|c| c.is_ascii_digit()))
+        })
         .collect::<Vec<_>>();
 
     Ok(Json(LoadVersionsOutput::from(versions)?))
@@ -102,15 +109,15 @@ pub fn native_install(
 
     // macOS: extract .pkg using pkgutil
     let version = &input.context.version;
-    let install_dir = &input.context.tool_dir;
     let pkg_url = format!("https://awscli.amazonaws.com/AWSCLIV2-{version}.pkg");
 
     // Use /tmp for download and extraction to avoid virtual path issues
     let pkg_path = "/tmp/proto-awscli.pkg";
     let expanded_path = "/tmp/proto-awscli-expanded";
-    let install_dir_str = install_dir
-        .real_path()
-        .expect("install_dir real path")
+    let install_dir_str = input
+        .install_dir
+        .to_real_path()?
+        .ok_or_else(|| Error::msg("could not resolve the install directory to a real path"))?
         .to_string_lossy()
         .to_string();
 
